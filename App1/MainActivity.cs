@@ -23,13 +23,14 @@ namespace App1
         public int a = 0;
         public int b = 0;
         public int c = 0;
-
+        public FtpClient client = new FtpClient("93.189.41.9");
         [System.Obsolete]
         protected override async void OnCreate(Bundle bundle)
         {
             try
             {
                 base.OnCreate(bundle);
+                client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
                 Xamarin.Essentials.Platform.Init(this, bundle);
                 // Set our view from the "main" layout resource
                 SetContentView(Resource.Layout.activity_main);
@@ -61,8 +62,7 @@ namespace App1
                 record.Click += async delegate
                 {
                     i = 1;
-                    FtpClient client = new FtpClient("93.189.41.9");
-                    client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
+                    
                     while (i == 1)
                     {
                         try
@@ -87,9 +87,9 @@ namespace App1
                             recorder.Reset();
                             try
                             {
-                                client.Connect();
+                                if (!client.IsConnected)
+                                    client.Connect();
                                 await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4", "/test" + a + ".mp4");
-                                client.Disconnect();
                             }
                             catch (Exception ex)
                             {
@@ -105,8 +105,6 @@ namespace App1
                 record.Click += async delegate
                 {
                     b = 1;
-                    FtpClient client = new FtpClient("93.189.41.9");
-                    client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
                     while (b == 1)
                     {
                         try
@@ -129,9 +127,10 @@ namespace App1
                             frontrecorder.Reset();
                             try
                             {
-                                client.Connect();
+
+                                if (!client.IsConnected)
+                                    client.Connect();
                                 await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + c + ".mp4", "/fronttest" + c + ".mp4");
-                                client.Disconnect();
                             }
                             catch (Exception ex)
                             {
