@@ -61,7 +61,8 @@ namespace App1
                 record.Click += async delegate
                 {
                     i = 1;
-
+                    FtpClient client = new FtpClient("93.189.41.9");
+                    client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
                     while (i == 1)
                     {
                         try
@@ -86,10 +87,9 @@ namespace App1
                             recorder.Reset();
                             try
                             {
-                                FtpClient client = new FtpClient("93.189.41.9");
-                                client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
                                 client.Connect();
                                 await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4", "/test" + a + ".mp4");
+                                client.Disconnect();
                             }
                             catch (Exception ex)
                             {
@@ -105,6 +105,8 @@ namespace App1
                 record.Click += async delegate
                 {
                     b = 1;
+                    FtpClient client = new FtpClient("93.189.41.9");
+                    client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
                     while (b == 1)
                     {
                         try
@@ -127,10 +129,9 @@ namespace App1
                             frontrecorder.Reset();
                             try
                             {
-                                FtpClient client = new FtpClient("93.189.41.9");
-                                client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
                                 client.Connect();
                                 await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + c + ".mp4", "/fronttest" + c + ".mp4");
+                                client.Disconnect();
                             }
                             catch (Exception ex)
                             {
