@@ -16,13 +16,14 @@ namespace App1
 
     public class MainActivity : AppCompatActivity
     {
-        public Camera FrontCam;
+        //Задаём 2 медиарекордера
         MediaRecorder recorder;
         MediaRecorder frontrecorder;
         public int i = 0;
         public int a = 0;
         public int b = 0;
         public int c = 0;
+        //создаём клиент, задаёт адрес ФТП
         public FtpClient client = new FtpClient("93.189.41.9");
         [System.Obsolete]
         protected override async void OnCreate(Bundle bundle)
@@ -30,35 +31,35 @@ namespace App1
             try
             {
                 base.OnCreate(bundle);
+                //Логин и пароль от ФТП
                 client.Credentials = new NetworkCredential("u163406", "JzjTZ3OPl0Ob");
                 Xamarin.Essentials.Platform.Init(this, bundle);
-                // Set our view from the "main" layout resource
                 SetContentView(Resource.Layout.activity_main);
-                string path = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test.mp4";
+                //Record - кнопка, остальные 2 - превью камер (по 1пикселю размером)
                 var record = FindViewById<Button>(Resource.Id.Record);
                 var video = FindViewById<VideoView>(Resource.Id.SampleVideoView);
                 var frontvideo = FindViewById<VideoView>(Resource.Id.SampleVideoViewFront);
-                /////////////
 
-
+                //Ненужный блок, показывает уведомление если нету фронтальной камеры
                 if (Camera.NumberOfCameras < 2)
                 {
                     Toast.MakeText(this, "Front camera missing", ToastLength.Long).Show();
                     return;
                 }
-
-                var FrontCamera = FrontCam;
+                //Задаём на переменную Camera фронталку (0 - задняя, 1 - фронт (наверно))
                 var camera = Camera.Open(1);
+                //Не уверен что параметры работают в принципе, но решил их оставить 
                 Android.Hardware.Camera.Parameters parameters = camera.GetParameters();
                 parameters.SetPictureSize(1920, 1080);
                 camera.SetParameters(parameters);
-                //camera.Unlock();
                 camera.SetDisplayOrientation(90);
                 var rearcamera = Camera.Open(0);
                 Android.Hardware.Camera.Parameters rearparameters = rearcamera.GetParameters();
                 rearparameters.SetPictureSize(1920, 1080);
                 rearcamera.SetParameters(rearparameters);
                 rearcamera.SetDisplayOrientation(90);
+
+                //Первый обработчик, отвечает за заднюю камеру
                 record.Click += async delegate
                 {
                     i = 1;
@@ -75,8 +76,10 @@ namespace App1
                             recorder.SetOutputFormat(OutputFormat.Default);
                             recorder.SetVideoEncoder(VideoEncoder.Default);
                             recorder.SetAudioEncoder(AudioEncoder.Default);
+                            //Битрейт и разрешение.
                             recorder.SetVideoEncodingBitRate(12000);
                             recorder.SetVideoSize(1920, 1080);
+                            //Адрес локального сохранения файла
                             recorder.SetOutputFile(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4");
                             recorder.SetPreviewDisplay(video.Holder.Surface);
                             recorder.Prepare();
@@ -89,6 +92,7 @@ namespace App1
                             {
                                 if (!client.IsConnected)
                                     client.Connect();
+                                //Адреса - 1й локальный, откуда загружать файл, второй - адрес на сервере, куда загружать
                                 await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4", "/test" + a + ".mp4");
                             }
                             catch (Exception ex)
@@ -102,6 +106,7 @@ namespace App1
                     }
 
                 };
+                //Обработчик кнопки, отвечающий за фронтальную камеру.
                 record.Click += async delegate
                 {
                     b = 1;
@@ -115,8 +120,10 @@ namespace App1
                             frontrecorder.SetVideoSource(VideoSource.Camera);
                             frontrecorder.SetOutputFormat(OutputFormat.Default);
                             frontrecorder.SetVideoEncoder(VideoEncoder.Default);
+                            //Битрейт и разрешение.
                             frontrecorder.SetVideoEncodingBitRate(6000);
                             frontrecorder.SetVideoSize(1280, 720);
+                            //Адрес локального сохранения файла
                             frontrecorder.SetOutputFile(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + c + ".mp4");
                             frontrecorder.SetPreviewDisplay(frontvideo.Holder.Surface);
                             frontrecorder.Prepare();
@@ -130,6 +137,7 @@ namespace App1
 
                                 if (!client.IsConnected)
                                     client.Connect();
+                                //Адреса - 1й локальный, откуда загружать файл, второй - адрес на сервере, куда загружать
                                 await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + c + ".mp4", "/fronttest" + c + ".mp4");
                             }
                             catch (Exception ex)
@@ -154,6 +162,9 @@ namespace App1
                 recorder.Release();
                 recorder.Dispose();
                 recorder = null;
+                frontrecorder.Release();
+                frontrecorder.Dispose();
+                frontrecorder = null;
             }
         }
 
