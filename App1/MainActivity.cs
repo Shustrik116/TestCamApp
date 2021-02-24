@@ -63,7 +63,7 @@ namespace App1
                 record.Click += async delegate
                 {
                     i = 1;
-                    
+
                     while (i == 1)
                     {
                         try
@@ -88,16 +88,6 @@ namespace App1
                             a++;
                             recorder.Stop();
                             recorder.Reset();
-                            try
-                            {
-                                if (!client.IsConnected)
-                                    client.Connect();
-                                //Адреса - 1й локальный, откуда загружать файл, второй - адрес на сервере, куда загружать
-                                await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4", "/test" + a + ".mp4");
-                            }
-                            catch (Exception ex)
-                            {
-                            }
                         }
                         catch (Exception ex)
                         {
@@ -132,21 +122,32 @@ namespace App1
                             c++;
                             frontrecorder.Stop();
                             frontrecorder.Reset();
-                            try
-                            {
-
-                                if (!client.IsConnected)
-                                    client.Connect();
-                                //Адреса - 1й локальный, откуда загружать файл, второй - адрес на сервере, куда загружать
-                                await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + c + ".mp4", "/fronttest" + c + ".mp4");
-                            }
-                            catch (Exception ex)
-                            {
-                            }
                         }
                         catch (Exception ex)
                         {
                         }
+                    }
+                };
+                //Третий обработчик кнопки, на этот раз он отвечает за оптравку файлов на ФТП сервер.
+                record.Click += async delegate
+                {
+                    //Стартуем с задежкой в 500мс чтобы файлы успели создаться
+                    await Task.Delay(500);
+                    try
+                    {
+                        while (b == 1)
+                        {
+                        if (!client.IsConnected)
+                        client.Connect();
+                        //Адреса - 1й локальный, откуда загружать файл, второй - адрес на сервере, куда загружать
+                        await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + c + ".mp4", "/fronttest" + c + ".mp4");
+                        await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4", "/test" + a + ".mp4");
+                        await Task.Delay(5000);
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+
                     }
                 };
             }
