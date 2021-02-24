@@ -9,6 +9,7 @@ using Android.Hardware;
 using System;
 using FluentFTP;
 using System.Net;
+using Java.IO;
 
 namespace App1
 {
@@ -63,7 +64,6 @@ namespace App1
                 record.Click += async delegate
                 {
                     i = 1;
-
                     while (i == 1)
                     {
                         try
@@ -99,6 +99,10 @@ namespace App1
                 //Обработчик кнопки, отвечающий за фронтальную камеру.
                 record.Click += async delegate
                 {
+                    await sendfile();
+                };
+                record.Click += async delegate
+                {
                     b = 1;
                     while (b == 1)
                     {
@@ -128,31 +132,43 @@ namespace App1
                         }
                     }
                 };
-                //Третий обработчик кнопки, на этот раз он отвечает за оптравку файлов на ФТП сервер.
-                record.Click += async delegate
-                {
-                    //Стартуем с задежкой в 500мс чтобы файлы успели создаться
-                    await Task.Delay(500);
-                    try
-                    {
-                        while (b == 1)
-                        {
-                        if (!client.IsConnected)
-                        client.Connect();
-                        //Адреса - 1й локальный, откуда загружать файл, второй - адрес на сервере, куда загружать
-                        await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + c + ".mp4", "/fronttest" + c + ".mp4");
-                        await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + a + ".mp4", "/test" + a + ".mp4");
-                        await Task.Delay(5000);
-                        }
-                    }
-                    catch(Exception ex)
-                    {
-
-                    }
-                };
             }
             catch (System.Exception ex)
             {
+            }
+        }
+        public async Task sendfile()
+        {
+            try
+            {
+                int b = 1;
+                int x = 0;
+                int y = 0;
+                await Task.Delay(7000);
+                while (b == 1)
+                {
+                    if (!client.IsConnected)
+                        client.Connect();
+                    //Адреса - 1й локальный, откуда загружать файл, второй - адрес на сервере, куда загружать
+                    File file = new File(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + x + ".mp4");
+                    await Task.Delay(5000);
+                    if (file.Exists())
+                    {
+                        await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/fronttest" + x + ".mp4", "/fronttest" + x + ".mp4");
+                        x++;
+                    }
+                    File rearfile = new File(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + y + ".mp4");
+                    if (rearfile.Exists())
+                    {
+                        await client.UploadFileAsync(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/test" + y + ".mp4", "/test" + y + ".mp4");
+                        y++;
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
         protected override void OnDestroy()
